@@ -1,0 +1,20 @@
+public class Main {
+    /*
+        1. should the class's private parameters have a similar name to the ones it's given in the constructor?
+            for example: if 'Car' class have constructor 'Car(int fuel)', should its private parameter be called 'fuel'
+            or is it better to change it to something similar such ass '__fuel' or 'pFuel'
+    */
+
+    public static void main(String[] args) {
+
+        System.out.println("Hello World!");
+
+        Book myBook = new Book("monkey Island", "captain cook", 1989, 7, 5, 2);
+
+
+        Library myLibrary = new Library(10, 10, 10);
+        System.out.println(myLibrary.isBookIdValid(0));
+        myLibrary.addBookToLibrary(myBook);
+        System.out.println(myLibrary.isBookIdValid(0));
+    }
+}
