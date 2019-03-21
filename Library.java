@@ -121,15 +121,26 @@ public class Library {
     }
 
     int getPatronId(Patron patron){
+        /**
+         * returns the patron's id in the library
+         * @return a non-negative number representing the patron's id. -1 if the patron isn't registered to the library
+         */
         for (int i = 0; i < this.patrons.length; i++) {
             if (this.patrons[i] == patron)
                 return i;
         }
 
-        return -1;                           // no patron matching
+        return -1;
     }
 
     boolean borrowBook(int bookId, int patronId) {
+        /**
+         * Marks the book as borrowed by the patron, if the book isn't already borrowed by someone else and the patron
+         * didn't borrow too many books already.
+         * @return  false if the book is not available, the patron isn't registered, the patron already borrowed his
+         *           maximum amount of books or if the patron won't enjoy the book.
+         *           true if non of the above happened and the book was borrowed successfully.
+         */
         Book currBook;          // those two are unnecessary but help with readability
         Patron currPatron;
 
@@ -137,6 +148,7 @@ public class Library {
             currBook = this.books[bookId];
         else
             return false;
+
         if (isPatronIdValid(patronId))
             currPatron = this.patrons[patronId];
         else
@@ -156,7 +168,7 @@ public class Library {
     boolean isBorrowerAtLimit(int patronId){
         /* This function goes through all the books to check how many of them borrowed by the patron in question.
         * This function could be more efficient if we could add 'currently_borrowed_books' parameter to the Patron
-        * class, but we are not allowed to do so (?). so I guass this is the way we should do it?*/
+        * class, but we are not allowed to do so (?). so I guess this is the way we should do it?*/
 
         int booksBorrowed = 0;
 
@@ -173,11 +185,17 @@ public class Library {
     }
 
     void returnBook(int bookId){
+        // returns a borrowed book back to the library, effectively changing it's borrowerId to -1.
         if (isBookIdValid(bookId))
             this.books[bookId].returnBook();
     }
 
     Book suggestBookToPatron(int patronId){
+        /**
+         * checks which book (out of the available books in the library) the patron will enjoy the most (gets the
+         * highest score from his preferences).
+         * @return The available book the patron with the given ID will enjoy the most. Null if no book is available.
+         */
         Book currBestBook = null;
         Patron patron;
 
@@ -185,11 +203,13 @@ public class Library {
             patron = this.patrons[patronId];
         else
             throw new NullPointerException("cant suggest Book to non-valid patron");
+            /* I was told not to give attention to the case were the patronId is invalid. I am just throwing exception
+               in this case */
 
         for (int i = 0; i < this.books.length; i++){
             if (this.books[i] != null){
-                if (patron.willEnjoyBook(this.books[i])){       // only suggesting books patrin
-                                                                                   // will enjoy
+                if (patron.willEnjoyBook(this.books[i])){       /* only suggesting books patrin
+                                                                     will enjoy */
                     if (currBestBook == null) {
                         currBestBook = this.books[i];
                     }
