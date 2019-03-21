@@ -1,4 +1,12 @@
 public class Library {
+    /**
+     * The livrary class descriving a library with books and patrons.
+     * @param maxBookCapacity   the maximum ammount of books that the library can hold at any given time
+     * @param maxBorrowedBooks  The maximum ammount of books a patron can have at any given time
+     * @param maxPatronCapacity The maximum number of patrons that can be registered to the library at any given time
+     * @param books               An array of Book objects, holding all the books the library has
+     * @param patrons             An array of Patron objects, holding all the registered patrons
+     */
 
     int maxBookCapacity, maxBorrowedBooks, maxPatronCapacity;
 
@@ -7,6 +15,9 @@ public class Library {
     Patron[] patrons;
 
     Library(int maxBookCapacity, int maxBorrowedBooks, int maxPatronCapacity){
+        /**
+         * The Library constructor
+         */
         this.maxBookCapacity = maxBookCapacity;
         this.maxBorrowedBooks = maxBorrowedBooks;
         this.maxPatronCapacity = maxPatronCapacity;
@@ -16,6 +27,11 @@ public class Library {
     }
 
     int addBookToLibrary(Book book){
+        /**
+         * This method adds a book to the library, if the books isn't there already and there is free space.
+         * @return a non-negative number that is the book's id that been assigned to it. if the book couldn't be
+         *          added, it returns -1 instead.
+         */
         if (getBookId(book) != -1) return -1; // if book is not in library already
 
         for (int i = 0; i < maxBookCapacity; i++){
@@ -29,12 +45,21 @@ public class Library {
     }
 
     boolean isBookIdValid(int bookId){
-        if ((bookId < this.maxBookCapacity) & (this.books[bookId] != null)) return true;
+        /**
+         * Checks if there is a book with the requested id
+         * @return true if there is a book with that id, false otherwise
+         */
+        if ((bookId < this.books.length) & (this.books[bookId] != null)) return true;
         return false;
     }
 
     int getBookId(Book book){
-        for (int i = 0; i < maxBookCapacity; i++){
+        /**
+         * This method recives a book objects, checks for it in the library books and returns its id
+         * @return  The requested book's id, which is a non-negative number,
+         *           if the book isn't in the library it returns -1 instead
+         */
+        for (int i = 0; i < this.books.length; i++){
             if (this.books[i] == book) return i;
         }
 
@@ -42,6 +67,11 @@ public class Library {
     }
 
     boolean isBookAvailable(int bookId){
+        /**
+         * This method checks if a book is currently borrowed or not.
+         * @return  returns true if the book can be borrowed, false if the book is already borrowed or it doesn't
+         *           exist in the library
+         */
         if (isBookIdValid(bookId)) {                                             // if book in library
             if (this.books[bookId].borrowerId == -1)                          // if book isn't borrowed already
                 return true;
@@ -51,7 +81,12 @@ public class Library {
     }
 
     boolean isPatronRegistered(Patron patron){
-        for (int i = 0; i < maxPatronCapacity; i++)
+        /**
+         * This method checks if a patron registered to the library. it is my own method for dealing.
+         * This wasn't requered in the API but this method is convenient for 'registerPatronToLibrary'.
+         * @return  true if the patron is registered, false otherwise
+         */
+        for (int i = 0; i < this.patrons.length; i++)
             if (this.patrons[i] == patron)
                     return true;
 
@@ -59,10 +94,14 @@ public class Library {
     }
 
     int registerPatronToLibrary(Patron patron){
-        if (isPatronRegistered(patron)) return -1; // delete this in case this is unnecessary
-                                                    // this is for when a patron can try to register twice
+        /**
+         * registers a patron to the library, effectivly adding him to the library's array of patrons, if there is space
+         * and if he isn't registered aready.
+         * @return returns the patron's id number. if the patron couldn't be registered, returns -1 instead.
+         */
+        if (isPatronRegistered(patron)) return getPatronId(patron); // if the patron already registered, returns his id
 
-        for (int i = 0; i < maxPatronCapacity; i++){
+        for (int i = 0; i < this.patrons.length; i++){
             if (this.patrons[i] == null){
                 this.patrons[i] = patron;
                 return i;
@@ -73,7 +112,11 @@ public class Library {
     }
 
     boolean isPatronIdValid(int patronId){
-        if ((patronId < this.maxPatronCapacity) & (this.books[patronId] != null)) return true;
+        /**
+         * Checks if there is a registered patron by the same id number.
+         * @return  true if there is a patron with the recived id, false otherwise
+         */
+        if ((patronId < this.patrons.length) & (this.books[patronId] != null)) return true;
         return false;
     }
 
