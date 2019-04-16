@@ -6,9 +6,11 @@ import java.util.Iterator;
 import java.util.Map;
 
 public class Locker {
-    static LongTermStorage LONG_TERM_STORAGE = new LongTermStorage();
+    static private LongTermStorage LONG_TERM_STORAGE = new LongTermStorage();
 
     final String MSG_ERROR_RMV_1 = "Error: Your request cannot be completed at this time. Problem: cannot remove a negative number of items of type ";
+    final Item ITEM_BASEBALL_BAT = ItemFactory.createSingleItem("baseball bat");
+    final Item ITEM_FOOTBALL = ItemFactory.createSingleItem("football");
 
     private Integer capacity;
     private HashMap<String, Integer> inventory;
@@ -24,14 +26,30 @@ public class Locker {
 
     /**
      * This method adds an items to the locker. it can be successful or not and according to the result it will return
-     * an appropriate int value
+     * an appropriate int value. If the wanted item has contradicting item in the locker the item wont be added and
+     * -2 will be returned
      * @param item the item we want to put into the locker
      * @param n the ammount of said item we want to put
      * @return 0 if the items were added to the locker
      *          -1 if the items weren't added
      *          1 if the items were added, but it caused some items in the locker to move to long-term storage
+     *          -2 if a contradicting item is in the locker
      */
     public int addItem(Item item, int n){
+        if (ITEM_BASEBALL_BAT.getType().equals(item.getType())){
+            if (inventory.containsKey(ITEM_FOOTBALL.getType())){
+                System.out.println("Error: Your request cannot becompleted at this time. Problem: the locker cannot contain items of type " + item.getType());
+                return -2;
+            }
+        }
+
+        if (ITEM_FOOTBALL.getType().equals(item.getType())){
+            if (inventory.containsKey(ITEM_BASEBALL_BAT.getType())){
+                System.out.println("Error: Your request cannot becompleted at this time. Problem: the locker cannot contain items of type " + item.getType());
+                return -2;
+            }
+        }
+
         if (getAvailableCapacity() - n * item.getVolume() < 0){
             System.out.println("Error: Your request cannot be completed at this time. Problem: no room for "
                     + n + " items of type " + item.getType());
@@ -47,15 +65,17 @@ public class Locker {
         currentquantityOfItem += n;
 
         if (currentquantityOfItem * item.getVolume() > 0.5 * this.capacity){
-            int itemsKept = 0;
-            while (0.2 * this.capacity > itemsKept * item.getVolume()) itemsKept++;
+            int itemsKept = 1;
+            while (0.2 * this.capacity >= itemsKept * item.getVolume()) itemsKept++;
+            itemsKept--; //If this breaked outside of the while loop, we have already more then 20% of the locker storage
             if (LONG_TERM_STORAGE.addItem(item, currentquantityOfItem - itemsKept) == 0){
                 this.inventory.put(item.getType(), itemsKept);
                 System.out.println("Warning: Action successful, but has caused items to be moved to storage");
                 return 1;
             }
             else{
-                // TODO: UNDERSTAND WHAT HAPPENS IN THIS POINT, RIGHT NOW IT DOESNT ADD ITEMS
+                System.out.println("Error: Your request cannot be completed at this time. Problem: no room for "
+                        + n + "∗ Items of type " + item.getType());
                 return -1;
             }
         }
@@ -89,7 +109,8 @@ public class Locker {
 
         int new_quantity = inventory.get(item.getType()) - n;
         inventory.remove(item.getType());
-        inventory.put(item.getType(), new_quantity);
+        if (new_quantity > 0)
+            inventory.put(item.getType(), new_quantity);
 
         return 0;
     }
@@ -125,20 +146,7 @@ public class Locker {
         Iterator iter = inventory.entrySet().iterator();
         while(iter.hasNext()){
             Map.Entry pair = (Map.Entry)iter.next();
-            int itemVolume = 0;
-            switch (pair.getKey().toString()){
-                case "baseball bat":
-                    itemVolume = 2;
-                    break;
-                case "helmet, size 1":
-                    itemVolume = 3;
-                    break;
-                case "helmet, size 3":
-                    itemVolume = 5;
-                    break;
-                case "spores engine":
-                    itemVolume = 10;
-            }
+            int itemVolume = ItemFactory.createSingleItem(pair.getKey().toString()).getVolume();
             availableCapacity -= (int)pair.getValue() * itemVolume;
         }
         return availableCapacity;
